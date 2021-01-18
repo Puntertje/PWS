@@ -20,11 +20,12 @@ ROAD_COLOR = (82, 82, 82)               # RGB grey
 
 
 class Game:
-    # TODO: implement debug switch.
     def __init__(self, spawn_rate=1, debug=False):
         pygame.init()
+        pygame.font.init()
 
         # Set variables
+        self.debug = debug
         self.car_list = []
         self.road_list = []
         self.intersections_list = []
@@ -55,9 +56,19 @@ class Game:
         # TODO: Change all of this, only here for debugging purposes.
         for _ in range(random.randint(2, MAX_AMOUNT_CARS-18)):
             self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(-1, 1)))
+
+        self.next_tick()
+
         while True:
-            self.next_tick()
-            sleep(0.5)
+            if debug:
+                events = pygame.event.get()
+                for event in events:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            self.next_tick()
+            else:
+                self.next_tick()
+                sleep(0.5)
 
     """
     Game Logic
@@ -102,6 +113,10 @@ class Game:
         rect = pygame.Rect(x * self.block_size, y * self.block_size, self.block_size, self.block_size)
         pygame.draw.rect(self.screen, color, rect)  # Draw the intersection.
         pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top for consistency.
+        if self.debug:
+            myfont = pygame.font.SysFont('Comic Sans MS', 25)
+            textsurface = myfont.render(intersection.name, False, (0, 0, 0))
+            self.screen.blit(textsurface, (x * self.block_size, y * self.block_size))
 
 
 Game()
