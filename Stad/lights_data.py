@@ -43,3 +43,32 @@ coordinates = {
     "BEH": (24, 36),
     "IPJ": (53, 87)
 }
+
+starting_points = [
+    "A",
+    "C",
+    "D",
+    "F",
+    "K",
+    "L",
+    "N"
+]
+
+destinations = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P"
+]

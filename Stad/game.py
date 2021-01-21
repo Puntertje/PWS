@@ -21,6 +21,7 @@ ROAD_COLOR = (82, 82, 82)               # RGB grey
 
 class Game:
     def __init__(self, spawn_rate=1, debug=False):
+        # pygame initialisations
         pygame.init()
         pygame.font.init()
 
@@ -54,11 +55,9 @@ class Game:
 
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
-        for _ in range(random.randint(2, MAX_AMOUNT_CARS-18)):
+        for _ in range(random.randint(2, MAX_AMOUNT_CARS-15)):
             self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(-1, 1)))
-
         self.next_tick()
-
         while True:
             if debug:
                 events = pygame.event.get()
@@ -68,7 +67,7 @@ class Game:
                             self.next_tick()
             else:
                 self.next_tick()
-                sleep(0.5)
+                sleep(0.1)
 
     """
     Game Logic
@@ -80,6 +79,7 @@ class Game:
             if brrr == "Arrived":
                 self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
             self.draw_car(car, CAR_COLOR)
+        pygame.event.get()          # Prevents the application from freezing up on Windows.
         pygame.display.update()
 
     # TODO: Create user action, specify the intersection with a tuple (x,y) and specify the direction 1-4
@@ -114,9 +114,9 @@ class Game:
         pygame.draw.rect(self.screen, color, rect)  # Draw the intersection.
         pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top for consistency.
         if self.debug:
-            myfont = pygame.font.SysFont('Comic Sans MS', 25)
-            textsurface = myfont.render(intersection.name, False, (0, 0, 0))
-            self.screen.blit(textsurface, (x * self.block_size, y * self.block_size))
+            font = pygame.font.SysFont('Comic Sans MS', 25)
+            text = font.render(intersection.name, False, (0, 0, 0))
+            self.screen.blit(text, (x * self.block_size, y * self.block_size))
 
 
 Game()
