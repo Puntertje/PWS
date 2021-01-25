@@ -1,9 +1,10 @@
 import lights_data
 import math
+from termcolor import colored
 
 
 # Modified/borrowed/stolen from https://www.pythonpool.com/dijkstras-algorithm-python/
-def dijkstra(self, start, destination):
+def dijkstra(start, destination):
     unvisited_nodes = lights_data.distances
     shortest_distance = {}
     route = []
@@ -34,7 +35,8 @@ def dijkstra(self, start, destination):
         try:
             route.insert(0, node)
             node = predecessor[node]
-        except Exception:
+        except Exception as error:
+            print(colored("Error in Dijkstra's algorithm:", "blue"), colored(error, "red"))
             return 'Path not reachable'
             break
     route.insert(0, start)

@@ -4,4 +4,3 @@ class Intersection:
         self.coordinates = (self.x_position, self.y_position)
         self.direction = 1
         self.name = name
-

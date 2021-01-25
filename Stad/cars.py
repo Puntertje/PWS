@@ -1,7 +1,6 @@
 import random   # In the end this is a game, no need to make it cryptographically secure.
 import lights_data
 import dijkstra_algo
-import math
 
 
 class Car:
@@ -23,6 +22,10 @@ class Car:
         self.coordinates = (self.x_position, self.y_position)   # Update coordinate tuple.
         # if self.x == self.destination_x and self.y == self.destination_y:
         #     return "Arrived"
+
+    # Get the car's next position, this is done in order to prevent colissions
+    def next_position(self):
+        return tuple(self.x_position + self.x_direction, self.y_position + self.y_direction)
 
     def crossing(self, current_position, next_position):
         # TODO: Change x_direction and y_direction to head for the next crossing.

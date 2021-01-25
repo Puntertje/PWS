@@ -5,9 +5,9 @@ import random
 
 
 # Variables
-WINDOW_WIDTH = 2510                     # Window dimensions
-WINDOW_HEIGHT = 1400                    # Window dimensions
-BlOCK_SIZE = 15                         # Size of each block in the grid.
+WINDOW_WIDTH = 650                     # Window dimensions
+WINDOW_HEIGHT = 900                    # Window dimensions
+BlOCK_SIZE = 10                         # Size of each block in the grid.
 MAX_AMOUNT_CARS = 20                    # Maximum cars allowed to exist at once.
 
 # Colors                                # Welcome to 50 shades of colors
@@ -15,12 +15,14 @@ BACKGROUND_COLOR = (200, 200, 200)      # RGB white(ish)
 GRID_COLOR = (0, 0, 0)                  # RGB black
 CAR_COLOR = (0, 0, 200)                 # RGB blue
 INTERSECTION_COLOR = (200, 0, 0)        # RGB red
-CORNER_COLOR = (72, 72, 72)             # RGB grey
+CROSSING_COLOR = (255, 180, 12)         # RGB orange
+CORNER_COLOR = (25, 25, 25)             # RGB grey
 ROAD_COLOR = (82, 82, 82)               # RGB grey
+TEXT_COLOR = (0, 200, 0)                         # RGB
 
 
 class Game:
-    def __init__(self, spawn_rate=1, debug=False):
+    def __init__(self, spawn_rate=1, debug=False, tick_speed=10):
         # pygame initialisations
         pygame.init()
         pygame.font.init()
@@ -28,7 +30,7 @@ class Game:
         # Set variables
         self.debug = debug
         self.car_list = []
-        self.road_list = []
+        self.road_dict = {}
         self.intersections_list = []
         self.spawn_rate = spawn_rate
         self.window_width = WINDOW_WIDTH
@@ -37,6 +39,21 @@ class Game:
         self.screen = pygame.display.set_mode((self.window_width, self.window_height))  # Setup the display screen.
         self.screen.fill(BACKGROUND_COLOR)                                              # Set the background
         self.draw_grid(self.window_width, self.window_height)                           # Draw the overlaying grid
+
+        # Generate roads
+        for corner in lights_data.corners:
+            corner_intersections = {}
+            for intersection in corner.split("-"):
+                corner_intersections[intersection] = lights_data.coordinates[intersection]
+            self.road_dict[corner] = roads.Road(corner_intersections, lights_data.corners[corner], corner)
+        # Remove edge case
+        road_cord_edge_case = [(14, 6), (14, 7), (14, 8)]
+        self.road_dict["E-D"].road_coordinate_list = [
+            road_cord for road_cord in self.road_dict["E-D"].road_coordinate_list
+            if road_cord not in road_cord_edge_case
+        ]
+        for road in self.road_dict:
+            self.draw_road(self.road_dict[road], ROAD_COLOR)
 
         # Generate intersection
         for intersection in lights_data.coordinates:
@@ -47,11 +64,7 @@ class Game:
             if len(intersection.name) == 1:
                 self.draw_intersection(intersection, INTERSECTION_COLOR)
             else:
-                self.draw_intersection(intersection, CORNER_COLOR)
-
-        # Generate roads
-        # TODO: Generate roads between intersections of a specified length. Likely going to have to be hard coded,
-        #       I don't like it any more than you do.
+                self.draw_intersection(intersection, CROSSING_COLOR)
 
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
@@ -67,7 +80,7 @@ class Game:
                             self.next_tick()
             else:
                 self.next_tick()
-                sleep(0.1)
+                sleep(1/tick_speed)
 
     """
     Game Logic
@@ -103,10 +116,25 @@ class Game:
         pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top. Looks better when erasing.
 
     def draw_road(self, road, color):
-        for x, y in road.coordinate_range():    # Takes a list of tuples which contain the road path section coordinates
+        for x, y in road.road_coordinate_list:  # Road
+            if x == 14 and y == 7:
+                print("WTF")
+                print(road.name)
             rect = pygame.Rect(x * self.block_size, y * self.block_size, self.block_size, self.block_size)
             pygame.draw.rect(self.screen, color, rect)  # Draw the road section.
+            pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)
+        self.draw_corner(road)
+
+    def draw_corner(self, road):
+        for corner in road.corner_coordinate_dict:          # Corners
+            x, y = road.corner_coordinate_dict[corner]
+            rect = pygame.Rect(x * self.block_size, y * self.block_size, self.block_size, self.block_size)
+            pygame.draw.rect(self.screen, CORNER_COLOR, rect)  # Draw the corner section.
             pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top for consistency.
+            if self.debug:
+                font = pygame.font.SysFont('Comic Sans MS', 25)
+                text = font.render(corner, False, TEXT_COLOR)
+                self.screen.blit(text, (x * self.block_size, y * self.block_size))
 
     def draw_intersection(self, intersection, color):
         x, y = intersection.coordinates
@@ -115,8 +143,8 @@ class Game:
         pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top for consistency.
         if self.debug:
             font = pygame.font.SysFont('Comic Sans MS', 25)
-            text = font.render(intersection.name, False, (0, 0, 0))
+            text = font.render(intersection.name, False, TEXT_COLOR)
             self.screen.blit(text, (x * self.block_size, y * self.block_size))
 
 
-Game()
+Game(tick_speed=0.01)
