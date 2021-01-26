@@ -7,6 +7,8 @@ class Car:
     def __init__(self, x, y, speed):
         self.destination = random.choice(lights_data.destinations)
         self.start = random.choice(lights_data.starting_points)
+        while self.start == self.destination:                           # We want the car to go somewhere.
+            self.destination = random.choice(lights_data.destinations)
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
         self.x_position = x
         self.y_position = y
@@ -23,7 +25,7 @@ class Car:
         # if self.x == self.destination_x and self.y == self.destination_y:
         #     return "Arrived"
 
-    # Get the car's next position, this is done in order to prevent colissions
+    # Get the car's next position, this is done in order to prevent collisions
     def next_position(self):
         return tuple(self.x_position + self.x_direction, self.y_position + self.y_direction)
 

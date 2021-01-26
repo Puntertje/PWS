@@ -4,8 +4,9 @@ from termcolor import colored
 
 
 # Modified/borrowed/stolen from https://www.pythonpool.com/dijkstras-algorithm-python/
+# TODO: improve commenting
 def dijkstra(start, destination):
-    unvisited_nodes = lights_data.distances
+    unvisited_nodes = lights_data.distances.copy()
     shortest_distance = {}
     route = []
     predecessor = {}
@@ -15,9 +16,9 @@ def dijkstra(start, destination):
     shortest_distance[start] = 0
 
     while unvisited_nodes:
-        min_node = None
+        min_node = None                     # Reset min_node
         for current_node in unvisited_nodes:
-            if min_node is None:
+            if min_node is None:            # Assign min_node
                 min_node = current_node
 
             elif shortest_distance[min_node] > shortest_distance[current_node]:
@@ -30,16 +31,18 @@ def dijkstra(start, destination):
         unvisited_nodes.pop(min_node)
 
     node = destination
-
     while node != start:
         try:
             route.insert(0, node)
             node = predecessor[node]
-        except Exception as error:
+        except KeyError as error:
             print(colored("Error in Dijkstra's algorithm:", "blue"), colored(error, "red"))
             return 'Path not reachable'
-            break
     route.insert(0, start)
     if shortest_distance[destination] != math.inf:
         # Return a list of all the stops along the optimal path.
         return route
+    else:
+        print(colored("Error in Dijkstra's algorithm:", "blue"), colored("No shortest path", "red"))
+        print(colored("Starting point:", "blue"), start)
+        print(colored("Destination:", "blue"), destination)

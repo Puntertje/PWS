@@ -5,8 +5,8 @@ import random
 
 
 # Variables
-WINDOW_WIDTH = 650                     # Window dimensions
-WINDOW_HEIGHT = 900                    # Window dimensions
+WINDOW_WIDTH = 650                      # Window dimensions
+WINDOW_HEIGHT = 900                     # Window dimensions
 BlOCK_SIZE = 10                         # Size of each block in the grid.
 MAX_AMOUNT_CARS = 20                    # Maximum cars allowed to exist at once.
 
@@ -18,7 +18,7 @@ INTERSECTION_COLOR = (200, 0, 0)        # RGB red
 CROSSING_COLOR = (255, 180, 12)         # RGB orange
 CORNER_COLOR = (25, 25, 25)             # RGB grey
 ROAD_COLOR = (82, 82, 82)               # RGB grey
-TEXT_COLOR = (0, 200, 0)                         # RGB
+TEXT_COLOR = (0, 200, 0)                # RGB green
 
 
 class Game:
@@ -60,7 +60,7 @@ class Game:
             # Create an intersection on the coordinates specified in lights_data with the corresponding name.
             self.intersections_list.append(lights.Intersection(lights_data.coordinates[intersection], intersection))
         for intersection in self.intersections_list:
-            # Check if its an intersection we control, if not we give it the corner color.
+            # Check if its an intersection we control, if not we give it the crossing color.
             if len(intersection.name) == 1:
                 self.draw_intersection(intersection, INTERSECTION_COLOR)
             else:
@@ -68,7 +68,7 @@ class Game:
 
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
-        for _ in range(random.randint(2, MAX_AMOUNT_CARS-15)):
+        for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
             self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(-1, 1)))
         self.next_tick()
         while True:
@@ -85,6 +85,8 @@ class Game:
     """
     Game Logic
     """
+    # TODO: replace field after the car has moved to the next field.
+    #       Also add collision logic
     def next_tick(self):
         for car in self.car_list:
             self.draw_car(car, BACKGROUND_COLOR)
@@ -92,7 +94,7 @@ class Game:
             if brrr == "Arrived":
                 self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
             self.draw_car(car, CAR_COLOR)
-        pygame.event.get()          # Prevents the application from freezing up on Windows.
+        pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()
 
     # TODO: Create user action, specify the intersection with a tuple (x,y) and specify the direction 1-4
@@ -116,10 +118,7 @@ class Game:
         pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)  # Redraw the grid on top. Looks better when erasing.
 
     def draw_road(self, road, color):
-        for x, y in road.road_coordinate_list:  # Road
-            if x == 14 and y == 7:
-                print("WTF")
-                print(road.name)
+        for x, y in road.road_coordinate_list:  # Road coordinates
             rect = pygame.Rect(x * self.block_size, y * self.block_size, self.block_size, self.block_size)
             pygame.draw.rect(self.screen, color, rect)  # Draw the road section.
             pygame.draw.rect(self.screen, GRID_COLOR, rect, 1)
@@ -147,4 +146,4 @@ class Game:
             self.screen.blit(text, (x * self.block_size, y * self.block_size))
 
 
-Game(tick_speed=0.01)
+Game(tick_speed=0.01, debug=True)
