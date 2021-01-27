@@ -10,8 +10,7 @@ class Car:
         while self.start == self.destination:                           # We want the car to go somewhere.
             self.destination = random.choice(lights_data.destinations)
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
-        self.x_position = x
-        self.y_position = y
+        self.x_position, self.y_position = lights_data.coordinates[self.start]
         self.x_direction = speed                                # Temporary speed assignment for debugging purposes.
         self.y_direction = speed                                # Eventually it will be handled by Dijkstra.
         self.coordinates = (self.x_position, self.y_position)

@@ -29,9 +29,11 @@ class Game:
 
         # Set variables
         self.debug = debug
-        self.car_list = []
-        self.road_dict = {}
-        self.intersections_list = []
+        self.car_list = []                  # List of all car objects
+        self.road_dict = {}                 # List of all road objects
+        self.intersections_dict = {}        # List of all intersection objects
+        self.road_coordinates_list = []     # List of all road coordinates, used for visual logic
+        self.corner_coordinates_list = []   # List of all corner coordinates, used for visual logic
         self.spawn_rate = spawn_rate
         self.window_width = WINDOW_WIDTH
         self.window_height = WINDOW_HEIGHT
@@ -58,14 +60,21 @@ class Game:
         # Generate intersection
         for intersection in lights_data.coordinates:
             # Create an intersection on the coordinates specified in lights_data with the corresponding name.
-            self.intersections_list.append(lights.Intersection(lights_data.coordinates[intersection], intersection))
-        for intersection in self.intersections_list:
+            self.intersections_dict[intersection] = lights.Intersection(lights_data.coordinates[intersection], intersection)
+        for intersection in self.intersections_dict:
             # Check if its an intersection we control, if not we give it the crossing color.
-            if len(intersection.name) == 1:
-                self.draw_intersection(intersection, INTERSECTION_COLOR)
+            if len(self.intersections_dict[intersection].name) == 1:
+                self.draw_intersection(self.intersections_dict[intersection], INTERSECTION_COLOR)
             else:
-                self.draw_intersection(intersection, CROSSING_COLOR)
+                self.draw_intersection(self.intersections_dict[intersection], CROSSING_COLOR)
+        print("Intersection_list:", self.intersections_dict)
 
+        # Add road and corner coordinates
+        for corner_dict_key in lights_data.corners:
+            for corner_value in lights_data.corners[corner_dict_key]:
+                self.corner_coordinates_list.append(lights_data.corners[corner_dict_key][corner_value])
+        for road_obj in self.road_dict:
+            self.road_coordinates_list.extend(self.road_dict[road_obj].road_coordinate_list)
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
         for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
@@ -89,7 +98,20 @@ class Game:
     #       Also add collision logic
     def next_tick(self):
         for car in self.car_list:
-            self.draw_car(car, BACKGROUND_COLOR)
+            current_car_pos_x, current_car_pos_y = car.coordinates
+            if (current_car_pos_x, current_car_pos_y) in [lights_data.coordinates["CB"],    # Crossings over which
+                                                          lights_data.coordinates["BEH"],   # we have no control.
+                                                          lights_data.coordinates["IPJ"]]:
+                self.draw_car(car, CROSSING_COLOR)
+            elif (current_car_pos_x, current_car_pos_y) in lights_data.coordinates.values():
+                self.draw_car(car, INTERSECTION_COLOR)
+
+            elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
+                self.draw_car(car, ROAD_COLOR)
+            elif (current_car_pos_x, current_car_pos_y) in self.corner_coordinates_list:
+                self.draw_car(car, CORNER_COLOR)
+            else:
+                self.draw_car(car, BACKGROUND_COLOR)
             brrr = car.drive()              # Sue me
             if brrr == "Arrived":
                 self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
@@ -146,4 +168,4 @@ class Game:
             self.screen.blit(text, (x * self.block_size, y * self.block_size))
 
 
-Game(tick_speed=0.01, debug=True)
+Game(tick_speed=1)

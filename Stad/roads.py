@@ -13,7 +13,7 @@ class Road:
             for corner_candidate in total_list:
                 if corner_candidate != corner:  # Don't want a road to itself.
                     x_can, y_can = total_list[corner_candidate]
-                    # Yes, I know this is spaget as fuck, if you have an alternative suggestion please lmk
+                    # Yes, I know this is spaget, if you have an alternative suggestion please lmk
                     if x_can == x and y_can != y:
                         if y_can < y:
                             road_coordinate = y_can + 1
