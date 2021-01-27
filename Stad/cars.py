@@ -12,26 +12,28 @@ class Car:
             self.destination = random.choice(lights_data.destinations)
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
         self.x_position, self.y_position = lights_data.coordinates[self.start]
-        self.x_direction, self.y_direction = (1, 1)                                # Temporary speed assignment for debugging purposes.                               # Eventually it will be handled by Dijkstra.
+        self.x_direction, self.y_direction = (1, 1)            # Temporary speed. Used for the first future position
         self.coordinates = (self.x_position, self.y_position)
 
     def drive(self):
-        if self.coordinates == lights_data.coordinates[self.destination]:
+        if self.coordinates == lights_data.intersection_and_corner_coordinates[self.destination]:
             return "Arrived"
-        if self.coordinates == lights_data.coordinates[self.route[0]]:
+        if self.coordinates == lights_data.intersection_and_corner_coordinates[self.route[0]]:
             self.crossing()
         self.x_position += self.x_direction
         self.y_position += self.y_direction
         self.coordinates = (self.x_position, self.y_position)
 
-    # Get the car's next position, this is done in order to prevent collisions
+    # Get the car's next position, this is done to prevent collisions.
     def next_position(self):
-        return (self.x_position + self.x_direction, self.y_position + self.y_direction)
+        return self.x_position + self.x_direction, self.y_position + self.y_direction
 
     def crossing(self):
         self.route.pop(0)
-        new_direction = tuple(numpy.subtract(lights_data.intersection_and_corner_coordinates[self.route[0]], self.coordinates))
-        new_direction = (new_direction[0]// abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
+        new_direction = tuple(numpy.subtract(
+            lights_data.intersection_and_corner_coordinates[self.route[0]], self.coordinates
+        ))
+        new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         self.x_direction, self.y_direction = new_direction
-        # TODO: Change x_direction and y_direction to head for the next crossing.
+
 

@@ -6,7 +6,8 @@ from termcolor import colored
 # Modified/borrowed/stolen from https://www.pythonpool.com/dijkstras-algorithm-python/
 # TODO: improve commenting
 def dijkstra(start, destination):
-    unvisited_nodes = lights_data.distances.copy()
+    # unvisited_nodes = lights_data.distances.copy()
+    unvisited_nodes = lights_data.distances_with_corners.copy()
     shortest_distance = {}
     route = []
     predecessor = {}
