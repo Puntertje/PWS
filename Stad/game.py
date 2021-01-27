@@ -10,6 +10,8 @@ WINDOW_WIDTH = 650                      # Window dimensions
 WINDOW_HEIGHT = 900                     # Window dimensions
 BlOCK_SIZE = 10                         # Size of each block in the grid.
 MAX_AMOUNT_CARS = 20                    # Maximum cars allowed to exist at once.
+CAR_SPAWN_SIZE = 5                      # Amount of spawning attempts per tick.
+CAR_SPAWN_CHANCE = 4                    # Chance of car spawning successfully, notation: 1/number
 
 # Colors                                # Welcome to 50 shades of colors
 BACKGROUND_COLOR = (200, 200, 200)      # RGB white(ish)
@@ -126,6 +128,11 @@ class Game:
                     self.draw_car(car, CAR_COLOR)
             else:
                 self.draw_car(car, CAR_COLOR)
+        for _ in range(CAR_SPAWN_SIZE):
+            if len(self.car_list) >= MAX_AMOUNT_CARS:
+                break
+            if random.randint(1, CAR_SPAWN_CHANCE) == 1:
+                self.car_list.append(cars.Car())
         pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()
 
