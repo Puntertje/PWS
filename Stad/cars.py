@@ -5,7 +5,7 @@ import numpy
 
 
 class Car:
-    def __init__(self, x, y, speed):
+    def __init__(self):
         self.destination = random.choice(lights_data.destinations)
         self.start = random.choice(lights_data.starting_points)
         while self.start == self.destination:                           # We want the car to go somewhere.

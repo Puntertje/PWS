@@ -103,6 +103,7 @@ corners = {
     "N-M": {"N-M_A": (43, 32)},
     # Roads without corners
     "C-D": {},
+    "C-CB": {},
     "E-F": {},
     "E-BEH": {},
     "BEH-CB": {},

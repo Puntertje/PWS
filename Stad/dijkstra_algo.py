@@ -4,7 +4,7 @@ from termcolor import colored
 
 
 # Modified/borrowed/stolen from https://www.pythonpool.com/dijkstras-algorithm-python/
-# TODO: improve commenting
+# TODO: improve commenting. Also if you want a large number of cars you can precompute a map for each node.
 def dijkstra(start, destination):
     # unvisited_nodes = lights_data.distances.copy()
     unvisited_nodes = lights_data.distances_with_corners.copy()

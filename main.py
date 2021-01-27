@@ -1,3 +1,3 @@
 from Stad import *
 
-city = game.Game(tick_speed=1)
+city = game.Game(tick_speed=10)

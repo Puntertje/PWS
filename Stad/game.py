@@ -1,4 +1,4 @@
-from . import roads, cars, lights, lights_data     # Local python modules, each controlling their respective game aspect.
+from . import roads, cars, lights, lights_data    # Local python modules, each controlling their respective game aspect.
 from time import sleep
 import pygame
 import random
@@ -78,7 +78,7 @@ class Game:
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
         for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
-            self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(1, 1)))
+            self.car_list.append(cars.Car())
         self.next_tick()
         while True:
             if debug:
@@ -112,9 +112,12 @@ class Game:
             drive = True
             for other_car in self.car_list:
                 if other_car.coordinates == car.next_position():
-                    print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
-                    drive = False
-                    break
+                    if other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
+                        drive = True
+                    else:
+                        print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
+                        drive = False
+                        break
             if drive:
                 brrr = car.drive()              # Sue me
                 if brrr == "Arrived":
