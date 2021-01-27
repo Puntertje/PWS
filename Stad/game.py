@@ -9,14 +9,14 @@ from termcolor import colored
 WINDOW_WIDTH = 650                      # Window dimensions
 WINDOW_HEIGHT = 900                     # Window dimensions
 BlOCK_SIZE = 10                         # Size of each block in the grid.
-MAX_AMOUNT_CARS = 20                    # Maximum cars allowed to exist at once.
+MAX_AMOUNT_CARS = 200                    # Maximum cars allowed to exist at once.
 CAR_SPAWN_SIZE = 5                      # Amount of spawning attempts per tick.
 CAR_SPAWN_CHANCE = 4                    # Chance of car spawning successfully, notation: 1/number
 
 # Colors                                # Welcome to 50 shades of colors
 BACKGROUND_COLOR = (200, 200, 200)      # RGB white(ish)
 GRID_COLOR = (0, 0, 0)                  # RGB black
-CAR_COLOR = (0, 0, 200)                 # RGB blue
+CAR_COLOR = (0, 255, 255)                 # RGB blue
 INTERSECTION_COLOR = (200, 0, 0)        # RGB red
 CROSSING_COLOR = (255, 180, 12)         # RGB orange
 CORNER_COLOR = (25, 25, 25)             # RGB grey
@@ -117,7 +117,7 @@ class Game:
                     if other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
                         drive = True
                     else:
-                        print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
+                        # print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
                         drive = False
                         break
             if drive:
