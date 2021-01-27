@@ -1,4 +1,4 @@
-import lights_data
+from . import lights_data
 import math
 from termcolor import colored
 

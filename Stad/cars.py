@@ -1,6 +1,7 @@
 import random   # In the end this is a game, no need to make it cryptographically secure.
-import lights_data
-import dijkstra_algo
+from . import lights_data
+from . import dijkstra_algo
+import numpy
 
 
 class Car:
@@ -11,24 +12,26 @@ class Car:
             self.destination = random.choice(lights_data.destinations)
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
         self.x_position, self.y_position = lights_data.coordinates[self.start]
-        self.x_direction = speed                                # Temporary speed assignment for debugging purposes.
-        self.y_direction = speed                                # Eventually it will be handled by Dijkstra.
+        self.x_direction, self.y_direction = (1, 1)                                # Temporary speed assignment for debugging purposes.                               # Eventually it will be handled by Dijkstra.
         self.coordinates = (self.x_position, self.y_position)
 
-    # TODO: Add collision detection. We don't want it to move onto an already occupied square
-    #       On second thought. Probably best this is handled in the game file
     def drive(self):
+        if self.coordinates == lights_data.coordinates[self.destination]:
+            return "Arrived"
+        if self.coordinates == lights_data.coordinates[self.route[0]]:
+            self.crossing()
         self.x_position += self.x_direction
         self.y_position += self.y_direction
-        self.coordinates = (self.x_position, self.y_position)   # Update coordinate tuple.
-        # if self.x == self.destination_x and self.y == self.destination_y:
-        #     return "Arrived"
+        self.coordinates = (self.x_position, self.y_position)
 
     # Get the car's next position, this is done in order to prevent collisions
     def next_position(self):
         return (self.x_position + self.x_direction, self.y_position + self.y_direction)
 
-    def crossing(self, current_position, next_position):
+    def crossing(self):
+        self.route.pop(0)
+        new_direction = tuple(numpy.subtract(lights_data.intersection_and_corner_coordinates[self.route[0]], self.coordinates))
+        new_direction = (new_direction[0]// abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
+        self.x_direction, self.y_direction = new_direction
         # TODO: Change x_direction and y_direction to head for the next crossing.
-        pass
 

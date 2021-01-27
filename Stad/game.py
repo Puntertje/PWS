@@ -1,4 +1,4 @@
-import roads, cars, lights, lights_data     # Local python modules, each controlling their respective game aspect.
+from . import roads, cars, lights, lights_data     # Local python modules, each controlling their respective game aspect.
 from time import sleep
 import pygame
 import random
@@ -103,10 +103,10 @@ class Game:
                 self.draw_car(car, CROSSING_COLOR)
             elif (current_car_pos_x, current_car_pos_y) in lights_data.coordinates.values():
                 self.draw_car(car, INTERSECTION_COLOR)
-            elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
-                self.draw_car(car, ROAD_COLOR)
             elif (current_car_pos_x, current_car_pos_y) in self.corner_coordinates_list:
                 self.draw_car(car, CORNER_COLOR)
+            elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
+                self.draw_car(car, ROAD_COLOR)
             else:
                 self.draw_car(car, BACKGROUND_COLOR)
             drive = True
@@ -119,7 +119,10 @@ class Game:
                 brrr = car.drive()              # Sue me
                 if brrr == "Arrived":
                     self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
-            self.draw_car(car, CAR_COLOR)
+                else:
+                    self.draw_car(car, CAR_COLOR)
+            else:
+                self.draw_car(car, CAR_COLOR)
         pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()
 
@@ -170,6 +173,3 @@ class Game:
             font = pygame.font.SysFont('Comic Sans MS', 25)
             text = font.render(intersection.name, False, TEXT_COLOR)
             self.screen.blit(text, (x * self.block_size, y * self.block_size))
-
-
-Game(tick_speed=1)
