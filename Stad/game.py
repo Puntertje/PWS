@@ -2,6 +2,7 @@ import roads, cars, lights, lights_data     # Local python modules, each control
 from time import sleep
 import pygame
 import random
+from termcolor import colored
 
 
 # Variables
@@ -67,7 +68,6 @@ class Game:
                 self.draw_intersection(self.intersections_dict[intersection], INTERSECTION_COLOR)
             else:
                 self.draw_intersection(self.intersections_dict[intersection], CROSSING_COLOR)
-        print("Intersection_list:", self.intersections_dict)
 
         # Add road and corner coordinates
         for corner_dict_key in lights_data.corners:
@@ -78,7 +78,7 @@ class Game:
         # Generate cars
         # TODO: Change all of this, only here for debugging purposes.
         for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
-            self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(-1, 1)))
+            self.car_list.append(cars.Car(random.randint(0, 5), random.randint(0, 5), random.randint(1, 1)))
         self.next_tick()
         while True:
             if debug:
@@ -94,8 +94,6 @@ class Game:
     """
     Game Logic
     """
-    # TODO: replace field after the car has moved to the next field.
-    #       Also add collision logic
     def next_tick(self):
         for car in self.car_list:
             current_car_pos_x, current_car_pos_y = car.coordinates
@@ -105,16 +103,22 @@ class Game:
                 self.draw_car(car, CROSSING_COLOR)
             elif (current_car_pos_x, current_car_pos_y) in lights_data.coordinates.values():
                 self.draw_car(car, INTERSECTION_COLOR)
-
             elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
                 self.draw_car(car, ROAD_COLOR)
             elif (current_car_pos_x, current_car_pos_y) in self.corner_coordinates_list:
                 self.draw_car(car, CORNER_COLOR)
             else:
                 self.draw_car(car, BACKGROUND_COLOR)
-            brrr = car.drive()              # Sue me
-            if brrr == "Arrived":
-                self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
+            drive = True
+            for other_car in self.car_list:
+                if other_car.coordinates == car.next_position():
+                    print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
+                    drive = False
+                    break
+            if drive:
+                brrr = car.drive()              # Sue me
+                if brrr == "Arrived":
+                    self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
             self.draw_car(car, CAR_COLOR)
         pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()

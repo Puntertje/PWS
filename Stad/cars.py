@@ -26,7 +26,7 @@ class Car:
 
     # Get the car's next position, this is done in order to prevent collisions
     def next_position(self):
-        return tuple(self.x_position + self.x_direction, self.y_position + self.y_direction)
+        return (self.x_position + self.x_direction, self.y_position + self.y_direction)
 
     def crossing(self, current_position, next_position):
         # TODO: Change x_direction and y_direction to head for the next crossing.
