@@ -110,7 +110,7 @@ class Game:
                     self.intersections_dict[intersection].direction
                 ]
                 # Highest state is 3, loop back to 0 if we reach it.
-                intersection_state_index = (1 + intersection_state_index) % 4
+                intersection_state_index = (1 + intersection_state_index) % len(lights_data.light_states)
                 self.intersections_dict[intersection].direction = lights_data.light_states[intersection_state_index]
         for car in self.car_list:
             current_car_pos_x, current_car_pos_y = car.coordinates
@@ -143,7 +143,6 @@ class Game:
                         drive = True
                     else:
                         drive = False
-
             if drive:
                 self.score += WIN_REWARD
                 brrr = car.drive()              # Sue me
@@ -162,9 +161,8 @@ class Game:
         pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()
 
-    # TODO: Create user action, specify the intersection with a tuple (x,y) and specify the direction 1-4
     def action(self, light, direction):
-        pass
+        self.intersections_dict[light] = lights_data.light_states[direction]
 
     """
     Visual Logic (I.E drawing)
