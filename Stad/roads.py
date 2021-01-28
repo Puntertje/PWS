@@ -1,5 +1,5 @@
 class Road:
-    def __init__(self, intersection_dict={}, corner_dict={}, name=""):
+    def __init__(self, intersection_dict, corner_dict, name=""):
         self.intersection_coordinate_dict = intersection_dict
         self.corner_coordinate_dict = corner_dict
         self.name = name

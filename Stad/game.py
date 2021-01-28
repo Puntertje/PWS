@@ -1,22 +1,24 @@
 from . import roads, cars, lights, lights_data    # Local python modules, each controlling their respective game aspect.
+from termcolor import colored
 from time import sleep
 import pygame
 import random
-from termcolor import colored
 
 
 # Variables
 WINDOW_WIDTH = 650                      # Window dimensions
 WINDOW_HEIGHT = 900                     # Window dimensions
 BlOCK_SIZE = 10                         # Size of each block in the grid.
-MAX_AMOUNT_CARS = 200                    # Maximum cars allowed to exist at once.
+MAX_AMOUNT_CARS = 50                    # Maximum cars allowed to exist at once.
 CAR_SPAWN_SIZE = 5                      # Amount of spawning attempts per tick.
 CAR_SPAWN_CHANCE = 4                    # Chance of car spawning successfully, notation: 1/number
+WIN_REWARD = 1                          # Reward value for letting a car drive
+LOSE_PUNISHMENT = 2                     # Punishment value for making a car stop
 
 # Colors                                # Welcome to 50 shades of colors
 BACKGROUND_COLOR = (200, 200, 200)      # RGB white(ish)
 GRID_COLOR = (0, 0, 0)                  # RGB black
-CAR_COLOR = (0, 255, 255)                 # RGB blue
+CAR_COLOR = (0, 200, 200)               # RGB blue/cyan
 INTERSECTION_COLOR = (200, 0, 0)        # RGB red
 CROSSING_COLOR = (255, 180, 12)         # RGB orange
 CORNER_COLOR = (25, 25, 25)             # RGB grey
@@ -25,13 +27,15 @@ TEXT_COLOR = (0, 200, 0)                # RGB green
 
 
 class Game:
-    def __init__(self, spawn_rate=1, debug=False, tick_speed=10):
+    def __init__(self, spawn_rate=1, debug=False, tick_speed=10, manual=False):
         # pygame initialisations
         pygame.init()
         pygame.font.init()
 
         # Set variables
         self.debug = debug
+        self.manual = manual                # If manual is true the user may change the lights and the clock is disabled
+        self.score = 0                      # Score to measure how well the A.I is doing.
         self.car_list = []                  # List of all car objects
         self.road_dict = {}                 # List of all road objects
         self.intersections_dict = {}        # List of all intersection objects
@@ -63,7 +67,8 @@ class Game:
         # Generate intersection
         for intersection in lights_data.coordinates:
             # Create an intersection on the coordinates specified in lights_data with the corresponding name.
-            self.intersections_dict[intersection] = lights.Intersection(lights_data.coordinates[intersection], intersection)
+            self.intersections_dict[intersection] = lights.Intersection(lights_data.coordinates[intersection],
+                                                                        intersection)
         for intersection in self.intersections_dict:
             # Check if its an intersection we control, if not we give it the crossing color.
             if len(self.intersections_dict[intersection].name) == 1:
@@ -78,25 +83,35 @@ class Game:
         for road_obj in self.road_dict:
             self.road_coordinates_list.extend(self.road_dict[road_obj].road_coordinate_list)
         # Generate cars
-        # TODO: Change all of this, only here for debugging purposes.
         for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
             self.car_list.append(cars.Car())
         self.next_tick()
-        while True:
-            if debug:
-                events = pygame.event.get()
-                for event in events:
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            self.next_tick()
-            else:
-                self.next_tick()
-                sleep(1/tick_speed)
+        if not self.manual:
+            while True:
+                if debug:
+                    events = pygame.event.get()
+                    for event in events:
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_SPACE:
+                                self.next_tick()
+                else:
+                    self.next_tick()
+                    sleep(1/tick_speed)
 
     """
     Game Logic
     """
     def next_tick(self):
+        # Changing the traffic lights if the users doesn't wish to do it themselves, it loops through the states each
+        # tick.
+        if not self.manual:
+            for intersection in self.intersections_dict:
+                intersection_state_index = lights_data.light_states_inverse[
+                    self.intersections_dict[intersection].direction
+                ]
+                # Highest state is 3, loop back to 0 if we reach it.
+                intersection_state_index = (1 + intersection_state_index) % 4
+                self.intersections_dict[intersection].direction = lights_data.light_states[intersection_state_index]
         for car in self.car_list:
             current_car_pos_x, current_car_pos_y = car.coordinates
             if (current_car_pos_x, current_car_pos_y) in [lights_data.coordinates["CB"],    # Crossings over which
@@ -117,16 +132,27 @@ class Game:
                     if other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
                         drive = True
                     else:
-                        # print(colored("Collission on:", "blue"), colored(car.next_position(), "red"))
+                        print(colored("Collision on:", "blue"), colored(car.next_position(), "red"))
+                        print(colored("Score:", "blue"), self.score)
                         drive = False
                         break
+            for intersection in self.intersections_dict:    # Check if the car is approaching an intersection.
+                if car.next_position() == self.intersections_dict[intersection].coordinates:
+                    if car.x_direction == self.intersections_dict[intersection].direction[0] and \
+                       car.y_direction == self.intersections_dict[intersection].direction[1]:
+                        drive = True
+                    else:
+                        drive = False
+
             if drive:
+                self.score += WIN_REWARD
                 brrr = car.drive()              # Sue me
                 if brrr == "Arrived":
                     self.car_list.remove(car)   # If the car is at its destination we can remove the car from the field.
                 else:
                     self.draw_car(car, CAR_COLOR)
             else:
+                self.score -= LOSE_PUNISHMENT
                 self.draw_car(car, CAR_COLOR)
         for _ in range(CAR_SPAWN_SIZE):
             if len(self.car_list) >= MAX_AMOUNT_CARS:

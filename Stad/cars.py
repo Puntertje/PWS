@@ -1,6 +1,5 @@
+from . import lights_data, dijkstra_algo
 import random   # In the end this is a game, no need to make it cryptographically secure.
-from . import lights_data
-from . import dijkstra_algo
 import numpy
 
 
@@ -35,5 +34,3 @@ class Car:
         ))
         new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         self.x_direction, self.y_direction = new_direction
-
-

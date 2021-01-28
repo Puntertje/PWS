@@ -150,3 +150,12 @@ destinations = [
     "O",
     "P"
 ]
+
+light_states = {
+    0: (1, 0),
+    1: (-1, 0),
+    2: (0, 1),
+    3: (0, -1)
+}
+
+light_states_inverse = dict((v, k) for k, v in light_states.items())
