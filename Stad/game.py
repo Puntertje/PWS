@@ -82,10 +82,8 @@ class Game:
                 self.corner_coordinates_list.append(lights_data.corners[corner_dict_key][corner_value])
         for road_obj in self.road_dict:
             self.road_coordinates_list.extend(self.road_dict[road_obj].road_coordinate_list)
-        # Generate cars
-        for _ in range(random.randint(2, MAX_AMOUNT_CARS)):
-            self.car_list.append(cars.Car())
-        self.next_tick()
+
+        # If the game is set to automatic we need to do the ticks ourself.
         if not self.manual:
             while True:
                 if debug:
