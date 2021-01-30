@@ -27,14 +27,17 @@ TEXT_COLOR = (0, 200, 0)                # RGB green
 
 
 class Game:
-    def __init__(self, spawn_rate=1, debug=False, tick_speed=10, manual=False):
-        # pygame initialisations
+    def __init__(self, spawn_rate=1, debug=False, tick_speed=10, manual=False, stats=False, tick_cap=0):
+        # Pygame initialisations
         pygame.init()
         pygame.font.init()
 
         # Set variables
         self.debug = debug
+        self.statistics = stats             # If this is true we track statistics and write them to a file
+        self.tick_cap = tick_cap            # Maximum amount of ticks per game, 0 means the game will go on forever
         self.manual = manual                # If manual is true the user may change the lights and the clock is disabled
+        self.tick_number = 0                # Keep track of our tick number
         self.score = 0                      # Score to measure how well the A.I is doing.
         self.car_list = []                  # List of all car objects
         self.road_dict = {}                 # List of all road objects
@@ -48,6 +51,13 @@ class Game:
         self.screen = pygame.display.set_mode((self.window_width, self.window_height))  # Setup the display screen.
         self.screen.fill(BACKGROUND_COLOR)                                              # Set the background
         self.draw_grid(self.window_width, self.window_height)                           # Draw the overlaying grid
+
+        # Statistics variables
+        if self.statistics:
+            self.tick_history = []
+            self.score_history = []
+            self.car_amount_history = []
+            self.score_per_tick_history = []
 
         # Generate roads
         for corner in lights_data.corners:
@@ -85,21 +95,37 @@ class Game:
 
         # If the game is set to automatic we need to do the ticks ourself.
         if not self.manual:
-            while True:
-                if debug:
-                    events = pygame.event.get()
-                    for event in events:
-                        if event.type == pygame.KEYDOWN:
-                            if event.key == pygame.K_SPACE:
-                                self.next_tick()
-                else:
-                    self.next_tick()
-                    sleep(1/tick_speed)
+            if self.tick_cap != 0:
+                for _ in range(self.tick_cap):
+                    if debug:
+                        events = pygame.event.get()
+                        for event in events:
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_SPACE:
+                                    self.next_tick()
+                    else:
+                        self.next_tick()
+                        if tick_speed != 0:
+                            sleep(1 / tick_speed)
+                pygame.display.quit()
+            else:
+                while True:
+                    if debug:
+                        events = pygame.event.get()
+                        for event in events:
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_SPACE:
+                                    self.next_tick()
+                    else:
+                        self.next_tick()
+                        if tick_speed != 0:  # If its zero there will be no delay
+                            sleep(1/tick_speed)
 
     """
     Game Logic
     """
     def next_tick(self):
+        self.tick_number += 1
         # Changing the traffic lights if the users doesn't wish to do it themselves, it loops through the states each
         # tick.
         if not self.manual:
@@ -151,16 +177,37 @@ class Game:
             else:
                 self.score -= LOSE_PUNISHMENT
                 self.draw_car(car, CAR_COLOR)
+        # Generate new cars.
         for _ in range(CAR_SPAWN_SIZE):
             if len(self.car_list) >= MAX_AMOUNT_CARS:
                 break
             if random.randint(1, CAR_SPAWN_CHANCE) == 1:
                 self.car_list.append(cars.Car())
+        # Render application
         pygame.event.get()                  # Prevents the application from freezing up on Windows.
         pygame.display.update()
+        # Update statistics
+        if self.statistics:
+            self.tick_history.append(self.tick_number)
+            self.score_history.append(self.score)
+            self.car_amount_history.append(len(self.car_list))
+            self.score_per_tick_history.append(self.score/self.tick_number)
 
     def action(self, light, direction):
         self.intersections_dict[light] = lights_data.light_states[direction]
+
+    """
+    Statistics
+    """
+    def get_stats(self):
+        if not self.statistics:
+            print(colored("Error, statistics not enabled.", "red"))
+            return None
+        return {
+            "Score": (self.tick_history, self.score_history),
+            "Cars": (self.tick_history, self.car_amount_history),
+            "Average score": (self.tick_history, self.score_per_tick_history)
+        }
 
     """
     Visual Logic (I.E drawing)
