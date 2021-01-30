@@ -9,7 +9,7 @@ import random
 WINDOW_WIDTH = 650                      # Window dimensions
 WINDOW_HEIGHT = 900                     # Window dimensions
 BlOCK_SIZE = 10                         # Size of each block in the grid.
-MAX_AMOUNT_CARS = 50                    # Maximum cars allowed to exist at once.
+MAX_AMOUNT_CARS = 500                   # Maximum cars allowed to exist at once.
 CAR_SPAWN_SIZE = 5                      # Amount of spawning attempts per tick.
 CAR_SPAWN_CHANCE = 4                    # Chance of car spawning successfully, notation: 1/number
 WIN_REWARD = 1                          # Reward value for letting a car drive
@@ -27,12 +27,16 @@ TEXT_COLOR = (0, 200, 0)                # RGB green
 
 
 class Game:
-    def __init__(self, spawn_rate=1, debug=False, tick_speed=10, manual=False, stats=False, tick_cap=0):
+    def __init__(self,
+                 spawn_rate=1, tick_cap=0, tick_speed=10,
+                 debug=False, manual=False, stats=False,
+                 max_cars=MAX_AMOUNT_CARS):
         # Pygame initialisations
         pygame.init()
         pygame.font.init()
 
         # Set variables
+        self.max_cars = max_cars
         self.debug = debug
         self.statistics = stats             # If this is true we track statistics and write them to a file
         self.tick_cap = tick_cap            # Maximum amount of ticks per game, 0 means the game will go on forever
@@ -179,7 +183,7 @@ class Game:
                 self.draw_car(car, CAR_COLOR)
         # Generate new cars.
         for _ in range(CAR_SPAWN_SIZE):
-            if len(self.car_list) >= MAX_AMOUNT_CARS:
+            if len(self.car_list) >= self.max_cars:
                 break
             if random.randint(1, CAR_SPAWN_CHANCE) == 1:
                 self.car_list.append(cars.Car())

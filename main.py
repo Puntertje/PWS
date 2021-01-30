@@ -9,9 +9,10 @@ statistic_data = {
             "Average score": []
         }
 
-for _ in range(3):      # number of times you want to run the game
-    city = game.Game(tick_speed=0, tick_cap=50, stats=True)
+car_amount_list = [50, 200, 500]
 
+for car_amount in car_amount_list:
+    city = game.Game(tick_speed=0, tick_cap=5000, stats=True, max_cars=car_amount)
     # Process statistics
     statistic_data_temp = city.get_stats()
     for i in statistic_data_temp:
