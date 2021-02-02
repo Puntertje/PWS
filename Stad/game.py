@@ -25,11 +25,12 @@ CORNER_COLOR = (25, 25, 25)             # RGB grey
 ROAD_COLOR = (82, 82, 82)               # RGB grey
 TEXT_COLOR = (0, 200, 0)                # RGB green
 
+verbose_collisions = False              # Print a message every time a car crashes.
 
 class Game:
     def __init__(self,
                  spawn_rate=1, tick_cap=0, tick_speed=10,
-                 debug=False, manual=False, stats=False,
+                 debug=False, manual=False, stats=True,
                  max_cars=MAX_AMOUNT_CARS):
         # Pygame initialisations
         pygame.init()
@@ -160,8 +161,9 @@ class Game:
                     if other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
                         drive = True
                     else:
-                        print(colored("Collision on:", "blue"), colored(car.next_position(), "red"))
-                        print(colored("Score:", "blue"), self.score)
+                        if verbose_collisions:
+                            print(colored("Collision on:", "blue"), colored(car.next_position(), "red"))
+                            print(colored("Score:", "blue"), self.score)
                         drive = False
                         break
             for intersection in self.intersections_dict:    # Check if the car is approaching an intersection.
@@ -212,6 +214,16 @@ class Game:
             "Cars": (self.tick_history, self.car_amount_history),
             "Average score": (self.tick_history, self.score_per_tick_history)
         }
+    """
+    Game data
+    """
+    def get_game_data(self):
+        data_list = []
+        for car in self.car_list:
+            data_list.append((car.x_position, car.y_position, car.x_direction, car.y_direction))
+        while len(data_list) < self.max_cars:
+            data_list.append((0, 0, 0, 0))
+        return data_list
 
     """
     Visual Logic (I.E drawing)

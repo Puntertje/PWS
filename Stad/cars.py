@@ -25,7 +25,13 @@ class Car:
 
     # Get the car's next position, this is done to prevent collisions.
     def next_position(self):
-        return self.x_position + self.x_direction, self.y_position + self.y_direction
+        if self.coordinates == lights_data.intersection_and_corner_coordinates[self.destination]:
+            return 500, 500 # the car will be gone next tick so no need to worry about it
+        if self.coordinates == lights_data.intersection_and_corner_coordinates[self.route[0]]:
+            projected_x_direction, projected_y_direction = self.projected_crossing()
+            return self.x_position + projected_x_direction, self.y_position + projected_y_direction
+        else:
+            return self.x_position + self.x_direction, self.y_position + self.y_direction
 
     def crossing(self):
         self.route.pop(0)
@@ -34,3 +40,12 @@ class Car:
         ))
         new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         self.x_direction, self.y_direction = new_direction
+
+    def projected_crossing(self):
+        route = self.route.copy()
+        route.pop(0)
+        new_direction = tuple(numpy.subtract(
+            lights_data.intersection_and_corner_coordinates[route[0]], self.coordinates
+        ))
+        new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
+        return new_direction
