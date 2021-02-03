@@ -158,7 +158,12 @@ class Game:
             drive = True
             for other_car in self.car_list:
                 if other_car.coordinates == car.next_position():
-                    if other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
+                    # If the cars are going in oposite directions they may faze through each other.
+                    if other_car.projected_x_direction * car.x_direction == -1 or other_car.projected_y_direction * car.y_direction == -1:
+                        drive = True
+                    # Some wierd bug causes cars to hang and somehow this fixes it.
+                    # I'll look into it if I have the time but for now this seems to work.
+                    elif other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
                         drive = True
                     else:
                         if verbose_collisions:

@@ -12,6 +12,7 @@ class Car:
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
         self.x_position, self.y_position = lights_data.coordinates[self.start]
         self.x_direction, self.y_direction = (1, 1)            # Temporary speed. Used for the first future position
+        self.projected_x_direction, self.projected_y_direction = self.x_direction, self.y_direction
         self.coordinates = (self.x_position, self.y_position)
 
     def drive(self):
@@ -28,10 +29,12 @@ class Car:
         if self.coordinates == lights_data.intersection_and_corner_coordinates[self.destination]:
             return 500, 500 # the car will be gone next tick so no need to worry about it
         if self.coordinates == lights_data.intersection_and_corner_coordinates[self.route[0]]:
-            projected_x_direction, projected_y_direction = self.projected_crossing()
-            return self.x_position + projected_x_direction, self.y_position + projected_y_direction
+            self.projected_x_direction, self.projected_y_direction = self.projected_crossing(self.route[1])
+            return self.x_position + self.projected_x_direction, self.y_position + self.projected_y_direction
         else:
-            return self.x_position + self.x_direction, self.y_position + self.y_direction
+            self.projected_x_direction = self.x_direction
+            self.projected_y_direction = self.y_direction
+            return self.x_position + self.projected_x_direction, self.y_position + self.projected_y_direction
 
     def crossing(self):
         self.route.pop(0)
@@ -41,11 +44,9 @@ class Car:
         new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         self.x_direction, self.y_direction = new_direction
 
-    def projected_crossing(self):
-        route = self.route.copy()
-        route.pop(0)
+    def projected_crossing(self, route):
         new_direction = tuple(numpy.subtract(
-            lights_data.intersection_and_corner_coordinates[route[0]], self.coordinates
+            lights_data.intersection_and_corner_coordinates[route], self.coordinates
         ))
         new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         return new_direction

@@ -27,7 +27,7 @@ statistic_data_ai = {
 }
 if AUTO:
     for car_amount in car_amount_list:
-        city = game.Game(tick_speed=0, tick_cap=TICK_CAP, stats=True, max_cars=car_amount)
+        city = game.Game(tick_speed=5, tick_cap=TICK_CAP, stats=True, max_cars=car_amount)
         # Process statistics
         statistic_data_temp = city.get_stats()
         for i in statistic_data_temp:
