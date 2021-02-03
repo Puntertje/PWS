@@ -1,4 +1,5 @@
 from . import lights_data, dijkstra_algo
+import warnings
 import random   # In the end this is a game, no need to make it cryptographically secure.
 import numpy
 
@@ -41,12 +42,16 @@ class Car:
         new_direction = tuple(numpy.subtract(
             lights_data.intersection_and_corner_coordinates[self.route[0]], self.coordinates
         ))
-        new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="divide by zero encountered in long_scalars")
+            new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         self.x_direction, self.y_direction = new_direction
 
     def projected_crossing(self, route):
         new_direction = tuple(numpy.subtract(
             lights_data.intersection_and_corner_coordinates[route], self.coordinates
         ))
-        new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="divide by zero encountered in long_scalars")
+            new_direction = (new_direction[0]//abs(new_direction[0]), new_direction[1]//abs(new_direction[1]))
         return new_direction

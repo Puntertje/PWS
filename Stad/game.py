@@ -101,15 +101,20 @@ class Game:
         # If the game is set to automatic we need to do the ticks ourself.
         if not self.manual:
             if self.tick_cap != 0:
-                for _ in range(self.tick_cap):
+                debug_tick_index = 0
+                while debug_tick_index < self.tick_cap:
                     if debug:
                         events = pygame.event.get()
                         for event in events:
                             if event.type == pygame.KEYDOWN:
                                 if event.key == pygame.K_SPACE:
                                     self.next_tick()
+                                    debug_tick_index += 1
+                                if event.key == pygame.K_w:
+                                    self.max_cars = 0      
                     else:
                         self.next_tick()
+                        debug_tick_index += 1
                         if tick_speed != 0:
                             sleep(1 / tick_speed)
                 pygame.display.quit()
@@ -121,6 +126,8 @@ class Game:
                             if event.type == pygame.KEYDOWN:
                                 if event.key == pygame.K_SPACE:
                                     self.next_tick()
+                                if event.key == pygame.K_w:
+                                    self.max_cars = 0
                     else:
                         self.next_tick()
                         if tick_speed != 0:  # If its zero there will be no delay
@@ -158,12 +165,15 @@ class Game:
             drive = True
             for other_car in self.car_list:
                 if other_car.coordinates == car.next_position():
+                    # TODO: Fix this, cars hang randomly around corners, backing up and stacking.
                     # If the cars are going in oposite directions they may faze through each other.
                     if other_car.projected_x_direction * car.x_direction == -1 or other_car.projected_y_direction * car.y_direction == -1:
                         drive = True
                     # Some wierd bug causes cars to hang and somehow this fixes it.
                     # I'll look into it if I have the time but for now this seems to work.
                     elif other_car.x_direction * car.x_direction == -1 or other_car.y_direction * car.y_direction == -1:
+                        drive = True
+                    elif car.projected_x_direction * other_car.x_direction == -1 or car.projected_y_direction * other_car.y_direction == -1:
                         drive = True
                     else:
                         if verbose_collisions:
