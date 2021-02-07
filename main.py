@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from Stad import *
 from Network import *
 import time
@@ -8,8 +9,8 @@ import time
 Variables
 """
 # General
-AI = True                           # Load the AI
-AUTO = False                        # Let the game run automaticly
+AI = False                           # Load the AI
+AUTO = True                         # Let the game run automatically
 TICK_CAP = 1000                     # Amount of game ticks per session
 car_amount_list = [50, 200, 500]    # Amount of cars in the game session
 # Statistics
@@ -19,7 +20,7 @@ statistic_data_game = {
             "Cars": [],
             "Average score": []
 }
-# For some wierd reason the .copy() method links the two dics instead of copying.
+# For some weird reason the .copy() method links the two dicts instead of copying.
 statistic_data_ai = {
             "Score": [],
             "Cars": [],
@@ -29,24 +30,25 @@ statistic_data_ai = {
 """
 Running the game
 """
-
 if AUTO:
-    for car_amount in car_amount_list:
+    for car_amount in tqdm(car_amount_list):
         city = game.Game(tick_speed=0, tick_cap=TICK_CAP, stats=True, max_cars=car_amount)
         # Process statistics
         statistic_data_temp = city.get_stats()
         for i in statistic_data_temp:
             statistic_data_game[i].append(statistic_data_temp[i])
-
 if AI:
-    city = game.Game(manual=True, stats=True)
-    for _ in range(TICK_CAP):
-        city.next_tick()
-    statistic_data_temp = city.get_stats()
-    for i in statistic_data_temp:
-        statistic_data_ai[i].append(statistic_data_temp[i])
+    for car_amount in tqdm(car_amount_list):
+        city = game.Game(manual=True, stats=True, headless=True, max_cars=car_amount)
+        for _ in range(TICK_CAP):
+            city.next_tick()
+        statistic_data_temp = city.get_stats()
+        for i in statistic_data_temp:
+            statistic_data_ai[i].append(statistic_data_temp[i])
 
-
+"""
+Statistics
+"""
 # Render statistics
 ax_index = 0  # Bit ugly, but it works
 for i in statistic_data_game:

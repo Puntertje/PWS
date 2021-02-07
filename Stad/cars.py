@@ -12,7 +12,7 @@ class Car:
             self.destination = random.choice(lights_data.destinations)
         self.route = dijkstra_algo.dijkstra(self.start, self.destination)
         self.x_position, self.y_position = lights_data.coordinates[self.start]
-        self.x_direction, self.y_direction = (1, 1)            # Temporary speed. Used for the first future position
+        self.x_direction, self.y_direction = (1, 1)            # Temporary speed. Used for the first future position.
         self.projected_x_direction, self.projected_y_direction = self.x_direction, self.y_direction
         self.coordinates = (self.x_position, self.y_position)
 
@@ -28,7 +28,7 @@ class Car:
     # Get the car's next position, this is done to prevent collisions.
     def next_position(self):
         if self.coordinates == lights_data.intersection_and_corner_coordinates[self.destination]:
-            return 500, 500 # the car will be gone next tick so no need to worry about it
+            return 500, 500  # the car will be gone next tick so no need to worry about it
         if self.coordinates == lights_data.intersection_and_corner_coordinates[self.route[0]]:
             self.projected_x_direction, self.projected_y_direction = self.projected_crossing(self.route[1])
             return self.x_position + self.projected_x_direction, self.y_position + self.projected_y_direction
