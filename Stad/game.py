@@ -1,6 +1,8 @@
 from . import roads, cars, lights, lights_data    # Local python modules, each controlling their respective game aspect.
 from termcolor import colored
+import numpy as np
 from time import sleep
+import itertools
 import pygame
 import random
 
@@ -54,6 +56,10 @@ class Game:
         self.road_coordinates_list = []     # List of all road coordinates, used for visual logic
         self.corner_coordinates_list = []   # List of all corner coordinates, used for visual logic
         self.spawn_rate = spawn_rate
+        self.tick_offset = 0                # Tick offset to persist stats across resets
+        # Extremely resource intensive, uncomment at your own risk. Also uncomment as appropriate in self.action()
+        # self.possible_actions = list(itertools.product([0, 1, 2, 3], repeat=16))
+        self.possible_actions = []
         if not self.headless:
             self.window_width = WINDOW_WIDTH
             self.window_height = WINDOW_HEIGHT
@@ -226,37 +232,47 @@ class Game:
             pygame.display.update()
         # Update statistics
         if self.statistics:
-            self.tick_history.append(self.tick_number)
+            self.tick_history.append(self.tick_number + self.tick_offset)
             self.score_history.append(self.score)
             self.car_amount_history.append(len(self.car_list))
             self.score_per_tick_history.append(self.score/self.tick_number)
 
-    def action(self, light, direction):
-        self.intersections_dict[light] = lights_data.light_states[direction]
+    def action(self, light=None, direction=None, number=None):
+        # Uncomment if your using itertools and have a better pc than me
+        # if number is not None:
+        #     action = list(self.possible_actions[number])    # get the traffic positions for that action
+        #     for i in action:
+        #         self.intersections_dict[lights_data.coordinates_keys[i]] = lights_data.light_states[i]
+        if number is not None:
+            light = number // 4
+            position = number % 4
+            self.intersections_dict[lights_data.coordinates_keys[light]].direction = lights_data.light_states[position]
+        else:
+            assert light is not None and direction is not None
+            self.intersections_dict[light].direction = lights_data.light_states[direction]
 
     def reset(self):
-        # TODO: remove cars
-        #       reset statistic variables
-        #       set lights in the same direction
         # remove cars from screen
         for car in self.car_list:
-            current_car_pos_x, current_car_pos_y = car.coordinates
-            if (current_car_pos_x, current_car_pos_y) in [lights_data.coordinates["CB"],  # Crossings over which
-                                                          lights_data.coordinates["BEH"],  # we have no control.
-                                                          lights_data.coordinates["IPJ"]]:
-                self.draw_car(car, CROSSING_COLOR)
-            elif (current_car_pos_x, current_car_pos_y) in lights_data.coordinates.values():
-                self.draw_car(car, INTERSECTION_COLOR)
-            elif (current_car_pos_x, current_car_pos_y) in self.corner_coordinates_list:
-                self.draw_car(car, CORNER_COLOR)
-            elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
-                self.draw_car(car, ROAD_COLOR)
-            else:
-                self.draw_car(car, BACKGROUND_COLOR)
+            if not self.headless:
+                current_car_pos_x, current_car_pos_y = car.coordinates
+                if (current_car_pos_x, current_car_pos_y) in [lights_data.coordinates["CB"],  # Crossings over which
+                                                              lights_data.coordinates["BEH"],  # we have no control.
+                                                              lights_data.coordinates["IPJ"]]:
+                    self.draw_car(car, CROSSING_COLOR)
+                elif (current_car_pos_x, current_car_pos_y) in lights_data.coordinates.values():
+                    self.draw_car(car, INTERSECTION_COLOR)
+                elif (current_car_pos_x, current_car_pos_y) in self.corner_coordinates_list:
+                    self.draw_car(car, CORNER_COLOR)
+                elif (current_car_pos_x, current_car_pos_y) in self.road_coordinates_list:
+                    self.draw_car(car, ROAD_COLOR)
+                else:
+                    self.draw_car(car, BACKGROUND_COLOR)
         # reset intersection direction
         for intersection in self.intersections_dict:
             self.intersections_dict[intersection].direction = lights_data.light_states[0]
-        # Reset variables
+        # Reset variables and update tick offset for statistics reasons
+        self.tick_offset = self.tick_number + self.tick_offset
         self.tick_number = 0
         self.car_list = []
         self.score = 0
@@ -279,10 +295,12 @@ class Game:
     def get_game_data(self):
         data_list = []
         for car in self.car_list:
-            data_list.append((car.x_position, car.y_position, car.x_direction, car.y_direction))
+            # data_list.append(car.x_position, car.y_position, car.x_direction, car.y_direction)
+            # This is a really, really bad solution. We need to represent the coordinates and direction in a single num
+            data_list.append(np.dot(np.dot(car.x_position, car.y_position), np.dot(car.x_direction, car.y_direction)))
         while len(data_list) < self.max_cars:
-            data_list.append((0, 0, 0, 0))
-        return data_list
+            data_list.append(np.dot(np.dot(0, 0), np.dot(0, 0)))
+        return np.array(data_list)
 
     """
     Visual Logic (I.E drawing)

@@ -8,8 +8,9 @@ class DQN:
         self.learningRate = learningRate
         self.name = name
 
-        with tf.variable_scope(self.name):
+        with tf.compat.v1.variable_scope(self.name):
             # the inputs describing the state
+            tf.compat.v1.disable_eager_execution()
             self.inputs_ = tf.placeholder(tf.float32, [None, *self.stateSize], name="inputs")
 
             # the one hotted action that we took
@@ -47,4 +48,4 @@ class DQN:
             self.loss = tf.reduce_mean(self.ISWeights_ * tf.square(self.targetQ - self.QValue))
 
             # use adam optimiser (its good shit)
-            self.optimizer = tf.train.AdamOptimizer(self.learningRate).minimize(self.loss)
+            self.optimizer = tf.compat.v1.train.AdamOptimizer(self.learningRate).minimize(self.loss)

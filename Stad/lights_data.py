@@ -86,7 +86,24 @@ coordinates = {
     "BEH": (14, 21),
     "IPJ": (20, 53)
 }
-
+coordinates_keys = [    # Because dicts are stored out of order in <3.7 we need a list to ensure order when doing action
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P"
+]
 corners = {
     "E-D": {"E-D_A": (14, 9), "E-D_B": (12, 9), "E-D_C": (12, 5), "E-D_D": (14, 5)},
     "BEH-H": {"BEH-H_A": (24, 21)},
