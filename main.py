@@ -53,7 +53,7 @@ if AI:
             statistic_data_ai[i].append(statistic_data_temp[i])
 
 if AI_TRAINING:
-    city = game.Game(manual=True, stats=True, max_cars=car_amount)
+    city = game.Game(manual=True, stats=True, max_cars=50)
     hanz = hanz_dqn.Brain(city)
     while True:
         if hanz.training:

@@ -135,7 +135,7 @@ class Brain:
             reward = self.game.score
             next_state = self.game.get_game_data()
 
-            if reward > 200:
+            if reward > 2000:
                 print("Reward {}".format(reward))
             # if car is dead then finish episode
             finished = False

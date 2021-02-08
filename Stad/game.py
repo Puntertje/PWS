@@ -201,13 +201,16 @@ class Game:
                             print(colored("Score:", "blue"), self.score)
                         drive = False
                         break
-            for intersection in self.intersections_dict:    # Check if the car is approaching an intersection.
-                if car.next_position() == self.intersections_dict[intersection].coordinates:
-                    if car.x_direction == self.intersections_dict[intersection].direction[0] and \
-                       car.y_direction == self.intersections_dict[intersection].direction[1]:
-                        drive = True
-                    else:
-                        drive = False
+            if drive:
+                for intersection in self.intersections_dict:    # Check if the car is approaching an intersection.
+                    if len(intersection) > 1:
+                        pass
+                    elif car.next_position() == self.intersections_dict[intersection].coordinates:
+                        if car.x_direction == self.intersections_dict[intersection].direction[0] and \
+                           car.y_direction == self.intersections_dict[intersection].direction[1]:
+                            drive = True
+                        else:
+                            drive = False
             if drive:
                 self.score += WIN_REWARD
                 brrr = car.drive()              # Sue me
